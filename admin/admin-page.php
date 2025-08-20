@@ -14,12 +14,14 @@ if (isset($_POST['submit']) && wp_verify_nonce($_POST['gomoku_settings_nonce'], 
     $max_history = intval($_POST['max_history']);
     $ai_difficulty = sanitize_text_field($_POST['ai_difficulty']);
     $dark_theme = sanitize_text_field($_POST['dark_theme']);
+    $character_mode = sanitize_text_field($_POST['character_mode']);
     
     update_option('gomoku_board_size', $board_size);
     update_option('gomoku_enable_scores', $enable_scores);
     update_option('gomoku_max_history', $max_history);
     update_option('gomoku_ai_difficulty', $ai_difficulty);
     update_option('gomoku_dark_theme', $dark_theme);
+    update_option('gomoku_character_mode', $character_mode);
     
     echo '<div class="notice notice-success"><p>設定が保存されました。</p></div>';
     
@@ -33,6 +35,7 @@ $enable_scores = get_option('gomoku_enable_scores', 1);
 $max_history = get_option('gomoku_max_history', 10);
 $ai_difficulty = get_option('gomoku_ai_difficulty', 'medium');
 $dark_theme = get_option('gomoku_dark_theme', 'auto');
+$character_mode = get_option('gomoku_character_mode', 'stones');
 
 // 統計情報の取得
 $scores = get_option('gomoku_scores', array());
@@ -122,6 +125,23 @@ foreach ($scores as $score) {
                             <p class="description">テーマの設定方法を選択してください。</p>
                         </td>
                     </tr>
+                    
+                    <tr>
+                        <th scope="row">
+                            <label for="character_mode">キャラクターモード</label>
+                        </th>
+                        <td>
+                            <select name="character_mode" id="character_mode">
+                                <option value="stones" <?php selected($character_mode, 'stones'); ?>>石</option>
+                                <option value="character" <?php selected($character_mode, 'character'); ?>>😎🤡 キャラクター</option>
+                                <option value="fantasy" <?php selected($character_mode, 'fantasy'); ?>>👺💀 ファンタジー</option>
+                                <option value="anime" <?php selected($character_mode, 'anime'); ?>>👽☠️ アニメ</option>
+                                <option value="emoji" <?php selected($character_mode, 'emoji'); ?>>😼🫥 絵文字</option>
+                                <option value="demon" <?php selected($character_mode, 'demon'); ?>>😈👻 悪魔vsおばけ</option>
+                            </select>
+                            <p class="description">ゲームで使用するキャラクターの種類を選択してください。</p>
+                        </td>
+                    </tr>
                 </table>
                 
                 <p class="submit">
@@ -172,6 +192,7 @@ foreach ($scores as $score) {
                     <li><code>board_size</code>: ボードサイズ（例: <code>[gomoku board_size="19"]</code>）</li>
                     <li><code>ai_level</code>: AIレベル（例: <code>[gomoku ai_level="hard"]</code>）</li>
                     <li><code>dark_theme</code>: ダークテーマ（例: <code>[gomoku dark_theme="dark"]</code>）</li>
+                    <li><code>character_mode</code>: キャラクターモード（例: <code>[gomoku character_mode="emoji"]</code>）</li>
                 </ul>
                 
                 <h3>例</h3>
@@ -180,6 +201,9 @@ foreach ($scores as $score) {
                     <li><code>[gomoku board_size="19"]</code> - 19×19のボード</li>
                     <li><code>[gomoku ai_level="easy"]</code> - 初級AIで対戦</li>
                     <li><code>[gomoku dark_theme="dark"]</code> - 強制ダークテーマ</li>
+                    <li><code>[gomoku character_mode="fantasy"]</code> - ファンタジーキャラクター</li>
+                    <li><code>[gomoku character_mode="emoji"]</code> - 絵文字キャラクター</li>
+                    <li><code>[gomoku character_mode="demon"]</code> - 悪魔vsおばけ</li>
                 </ul>
             </div>
         </div>

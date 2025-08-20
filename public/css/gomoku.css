@@ -134,10 +134,128 @@
     content: '';
     width: 28px;
     height: 28px;
-    background: radial-gradient(circle at 30% 30%, #fff, #ccc);
+    background: radial-gradient(circle at 30% 30%, #ffffff, #ffffff, #f8f9fa);
     border-radius: 50%;
     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
     border: 2px solid #333; /* 黒い境界線を追加 */
+}
+
+/* 絵文字キャラクターモード */
+.gomoku-cell.character-mode {
+    position: relative;
+}
+
+.gomoku-cell.character-mode::before {
+    content: '😎';
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    box-shadow: none;
+}
+
+.gomoku-cell.character-mode.black::before {
+    content: '😎';
+}
+
+.gomoku-cell.character-mode.white::before {
+    content: '🤡';
+}
+
+/* ファンタジーキャラクター - 黒プレイヤー */
+.gomoku-cell.fantasy-mode.black::before {
+    content: '👺';
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    box-shadow: none;
+}
+
+/* ファンタジーキャラクター - 白プレイヤー */
+.gomoku-cell.fantasy-mode.white::before {
+    content: '💀';
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    box-shadow: none;
+}
+
+/* アニメキャラクター - 黒プレイヤー */
+.gomoku-cell.anime-mode.black::before {
+    content: '👽';
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    box-shadow: none;
+}
+
+/* アニメキャラクター - 白プレイヤー */
+.gomoku-cell.anime-mode.white::before {
+    content: '☠️';
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    box-shadow: none;
+}
+
+/* 追加の絵文字キャラクター */
+.gomoku-cell.emoji-mode.black::before {
+    content: '😼';
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    box-shadow: none;
+}
+
+.gomoku-cell.emoji-mode.white::before {
+    content: '🫥';
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    box-shadow: none;
+}
+
+/* 悪魔vsおばけキャラクター */
+.gomoku-cell.demon-mode.black::before {
+    content: '😈';
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    box-shadow: none;
+}
+
+.gomoku-cell.demon-mode.white::before {
+    content: '👻';
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    box-shadow: none;
 }
 
 /* ライトテーマでの石の色 */
@@ -148,7 +266,7 @@
 }
 
 .gomoku-game:not(.dark-theme) .gomoku-cell.white::before {
-    background: radial-gradient(circle at 30% 30%, #fff, #ccc);
+    background: radial-gradient(circle at 30% 30%, #ffffff, #ffffff, #f8f9fa);
     border: 2px solid #333;
     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
@@ -206,8 +324,37 @@
     color: white;
 }
 
+/* キャラクター選択 */
+.character-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8px 16px;
+    border-radius: 20px;
+    color: white;
+    margin-top: 10px;
+}
+
+.character-selector label {
+    font-size: 14px;
+    font-weight: 500;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.character-selector .gomoku-select {
+    min-width: 120px;
+}
+
 /* ライトテーマでのAIレベル選択 */
 .gomoku-game:not(.dark-theme) .ai-level-selector {
+    background: rgba(0, 0, 0, 0.1);
+    color: #333;
+}
+
+/* ライトテーマでのキャラクター選択 */
+.gomoku-game:not(.dark-theme) .character-selector {
     background: rgba(0, 0, 0, 0.1);
     color: #333;
 }
@@ -691,15 +838,17 @@
     }
     
     .gomoku-cell.white::before {
-        background: radial-gradient(circle at 30% 30%, #ffffff, #e2e8f0);
-        border: 2px solid #2d3748;
-        box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        background: radial-gradient(circle at 30% 30%, #ffffff, #ffffff, #f8f9fa) !important;
+        border: 2px solid #4a5568 !important;
+        box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.5) !important;
+        filter: brightness(1.2) contrast(1.3);
     }
     
     .gomoku-cell.black::before {
-        background: radial-gradient(circle at 30% 30%, #4a5568, #2d3748);
-        border: 2px solid #e2e8f0;
-        box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        background: radial-gradient(circle at 30% 30%, #2d3748, #1a202c) !important;
+        border: 2px solid #e2e8f0 !important;
+        box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7) !important;
+        filter: brightness(0.9) contrast(1.1);
     }
     
     .gomoku-scores,
@@ -814,9 +963,9 @@
 }
 
 .gomoku-game.dark-theme .gomoku-cell.white::before {
-    background: radial-gradient(circle at 30% 30%, #ffffff, #e2e8f0);
-    border: 2px solid #2d3748;
-    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    background: radial-gradient(circle at 30% 30%, #ffffff, #f7fafc);
+    border: 2px solid #4a5568;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.3);
 }
 
 .gomoku-game.dark-theme .gomoku-cell.black::before {
@@ -892,8 +1041,12 @@
     }
     
     .gomoku-game.dark-theme .ai-level-selector {
-        background: rgba(0, 0, 0, 0.2);
-    }
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.gomoku-game.dark-theme .character-selector {
+    background: rgba(0, 0, 0, 0.2);
+}
 
 .gomoku-game.dark-theme .gomoku-select {
     background: rgba(0, 0, 0, 0.3);
@@ -902,4 +1055,20 @@
 
 .gomoku-game.dark-theme .gomoku-select option {
     background: #2d3748;
+}
+
+/* ダークモード時の白石の視認性を向上 */
+.gomoku-game.dark-theme .gomoku-cell.white::before {
+    background: radial-gradient(circle at 30% 30%, #ffffff, #ffffff, #f8f9fa) !important;
+    border: 2px solid #4a5568 !important;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.5) !important;
+    filter: brightness(1.2) contrast(1.3);
+}
+
+/* ダークモード時の黒石の視認性を向上 */
+.gomoku-game.dark-theme .gomoku-cell.black::before {
+    background: radial-gradient(circle at 30% 30%, #2d3748, #1a202c) !important;
+    border: 2px solid #e2e8f0 !important;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7) !important;
+    filter: brightness(0.9) contrast(1.1);
 }

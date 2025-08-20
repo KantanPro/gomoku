@@ -17,6 +17,7 @@
             this.aiLevel = 'medium'; // AIレベル
             this.aiPlayer = 2; // 白がAI
             this.isLoggedIn = false; // ログイン状態
+            this.characterMode = 'stones'; // キャラクターモード: stones, character, fantasy, anime, emoji, demon
             
             this.init();
         }
@@ -26,6 +27,7 @@
             this.bindEvents();
             this.updateUI();
             this.checkAILevel();
+            this.checkCharacterMode();
             this.checkDarkMode();
             this.checkLoginStatus();
             this.loadGameHistory();
@@ -72,6 +74,11 @@
             // AIレベル選択
             $(document).on('change', '#ai-level', (e) => {
                 this.changeAILevel($(e.target).val());
+            });
+            
+            // キャラクターモード選択
+            $(document).on('change', '#character-mode', (e) => {
+                this.changeCharacterMode($(e.target).val());
             });
         }
         
@@ -427,6 +434,64 @@
         changeAILevel(level) {
             this.aiLevel = level;
             console.log('AIレベルを変更しました:', level);
+        }
+        
+        /**
+         * キャラクターモードの確認
+         */
+        checkCharacterMode() {
+            const characterModeAttr = $('#gomoku-game').data('character-mode');
+            if (characterModeAttr) {
+                this.characterMode = characterModeAttr;
+                $('#character-mode').val(this.characterMode);
+            }
+            this.applyCharacterMode();
+        }
+        
+        /**
+         * キャラクターモードの変更
+         */
+        changeCharacterMode(mode) {
+            this.characterMode = mode;
+            console.log('キャラクターモードを変更しました:', mode);
+            this.applyCharacterMode();
+        }
+        
+        /**
+         * キャラクターモードを適用
+         */
+        applyCharacterMode() {
+            // 既存のクラスを削除
+            $('.gomoku-cell').removeClass('character-mode fantasy-mode anime-mode emoji-mode demon-mode');
+            
+            // 新しいモードを適用
+            if (this.characterMode === 'character') {
+                $('.gomoku-cell').addClass('character-mode');
+            } else if (this.characterMode === 'fantasy') {
+                $('.gomoku-cell').addClass('fantasy-mode');
+            } else if (this.characterMode === 'anime') {
+                $('.gomoku-cell').addClass('anime-mode');
+            } else if (this.characterMode === 'emoji') {
+                $('.gomoku-cell').addClass('emoji-mode');
+            } else if (this.characterMode === 'demon') {
+                $('.gomoku-cell').addClass('demon-mode');
+            }
+            
+            // 既存の石を再描画
+            this.redrawBoard();
+        }
+        
+        /**
+         * ボードを再描画
+         */
+        redrawBoard() {
+            for (let i = 0; i < this.boardSize; i++) {
+                for (let j = 0; j < this.boardSize; j++) {
+                    if (this.board[i][j] !== 0) {
+                        this.updateCell(i, j);
+                    }
+                }
+            }
         }
         
         /**
