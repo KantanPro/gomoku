@@ -145,7 +145,14 @@
     position: relative;
 }
 
+/* 空のセルには何も表示しない */
 .gomoku-cell.character-mode::before {
+    content: '';
+    display: none;
+}
+
+/* 黒プレイヤーのセルに😎を表示 */
+.gomoku-cell.character-mode.black::before {
     content: '😎';
     font-size: 24px;
     display: flex;
@@ -156,12 +163,16 @@
     box-shadow: none;
 }
 
-.gomoku-cell.character-mode.black::before {
-    content: '😎';
-}
-
+/* 白プレイヤーのセルに🤡を表示 */
 .gomoku-cell.character-mode.white::before {
     content: '🤡';
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    box-shadow: none;
 }
 
 /* ファンタジーキャラクター - 黒プレイヤー */
