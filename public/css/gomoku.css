@@ -22,11 +22,24 @@
     border-radius: 8px;
 }
 
+/* Hタグのデフォルトスタイルをリセット */
+.gomoku-header h1,
+.gomoku-header h2,
+.gomoku-header h3,
+.gomoku-header h4,
+.gomoku-header h5,
+.gomoku-header h6 {
+    margin: 0;
+    padding: 0;
+    line-height: 1.2;
+}
+
 .gomoku-title {
-    margin: 0 0 15px 0;
+    margin: 0 0 10px 0;
     font-size: 28px;
     font-weight: bold;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    line-height: 1.2;
 }
 
 .gomoku-status {
@@ -35,6 +48,7 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 15px;
+    margin-top: 10px;
 }
 
 .current-player, .game-status {
@@ -66,6 +80,12 @@
     border: 3px solid #654321;
 }
 
+/* ライトテーマでの盤面の色 */
+.gomoku-game:not(.dark-theme) .gomoku-board {
+    background: #8B4513;
+    border-color: #654321;
+}
+
 .gomoku-row {
     display: flex;
     margin: 0;
@@ -84,10 +104,21 @@
     justify-content: center;
 }
 
+/* ライトテーマでのセルの色 */
+.gomoku-game:not(.dark-theme) .gomoku-cell {
+    background: #DEB887;
+    border-color: #654321;
+}
+
 .gomoku-cell:hover {
     background: #F4A460;
     transform: scale(1.05);
     z-index: 1;
+}
+
+/* ライトテーマでのセルのホバー色 */
+.gomoku-game:not(.dark-theme) .gomoku-cell:hover {
+    background: #F4A460;
 }
 
 .gomoku-cell.black::before {
@@ -105,6 +136,20 @@
     height: 28px;
     background: radial-gradient(circle at 30% 30%, #fff, #ccc);
     border-radius: 50%;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    border: 2px solid #333; /* 黒い境界線を追加 */
+}
+
+/* ライトテーマでの石の色 */
+.gomoku-game:not(.dark-theme) .gomoku-cell.black::before {
+    background: radial-gradient(circle at 30% 30%, #666, #000);
+    border: 2px solid #333;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.gomoku-game:not(.dark-theme) .gomoku-cell.white::before {
+    background: radial-gradient(circle at 30% 30%, #fff, #ccc);
+    border: 2px solid #333;
     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
@@ -150,31 +195,62 @@
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 }
 
-.gomoku-btn-ai {
-    background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+/* AIレベル選択 */
+.ai-level-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8px 16px;
+    border-radius: 20px;
     color: white;
 }
 
-.gomoku-btn-ai:hover {
-    background: linear-gradient(135deg, #9b59b6, #8e44ad);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+/* ライトテーマでのAIレベル選択 */
+.gomoku-game:not(.dark-theme) .ai-level-selector {
+    background: rgba(0, 0, 0, 0.1);
+    color: #333;
 }
 
-.gomoku-btn-ai-on {
-    background: linear-gradient(135deg, #00b894, #00a085);
+.ai-level-selector label {
+    font-size: 14px;
+    font-weight: 500;
+    margin: 0;
+}
+
+.gomoku-select {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* ライトテーマでのセレクター */
+.gomoku-game:not(.dark-theme) .gomoku-select {
+    background: rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    color: #333;
+}
+
+.gomoku-select:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+}
+
+.gomoku-select option {
+    background: #4a5568;
     color: white;
 }
 
-.gomoku-btn-ai-on:hover {
-    background: linear-gradient(135deg, #00a085, #008f7a);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-}
-
-.gomoku-btn-ai-off {
-    background: linear-gradient(135deg, #a29bfe, #6c5ce7);
-    color: white;
+/* ライトテーマでのセレクターオプション */
+.gomoku-game:not(.dark-theme) .gomoku-select option {
+    background: #ffffff;
+    color: #333;
+    border: 1px solid #e2e8f0;
 }
 
 /* ゲーム情報 */
@@ -183,6 +259,34 @@
     grid-template-columns: 1fr 1fr;
     gap: 30px;
     margin-top: 20px;
+}
+
+/* ライトテーマでのゲーム情報 */
+.gomoku-game:not(.dark-theme) .gomoku-scores,
+.gomoku-game:not(.dark-theme) .gomoku-history {
+    background: #ffffff;
+    color: #333;
+    border: 1px solid #e2e8f0;
+}
+
+.gomoku-game:not(.dark-theme) .score-item {
+    border-bottom-color: #e2e8f0;
+}
+
+.gomoku-game:not(.dark-theme) .player-label {
+    color: #333;
+}
+
+.gomoku-game:not(.dark-theme) .score-value {
+    color: #667eea;
+}
+
+.gomoku-game:not(.dark-theme) .gomoku-history h4 {
+    color: #333;
+}
+
+.gomoku-game:not(.dark-theme) .history-list {
+    color: #666;
 }
 
 .gomoku-scores {
@@ -235,6 +339,143 @@
     color: #666;
 }
 
+/* ゲーム履歴アイテムのスタイル */
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 13px;
+}
+
+.history-item:last-child {
+    border-bottom: none;
+}
+
+.history-time {
+    color: #999;
+    font-size: 12px;
+    min-width: 50px;
+}
+
+.history-winner {
+    color: #333;
+    font-weight: 500;
+    flex: 1;
+    text-align: center;
+}
+
+    .history-moves {
+        color: #666;
+        font-size: 12px;
+        min-width: 40px;
+        text-align: right;
+    }
+    
+    /* ログイン通知のスタイル */
+    .gomoku-login-notice {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 25px;
+        border-radius: 12px;
+        border: 2px solid #dee2e6;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .gomoku-login-notice h4 {
+        margin: 0 0 20px 0;
+        color: #495057;
+        font-size: 20px;
+        font-weight: bold;
+    }
+    
+    .login-benefits {
+        margin-bottom: 25px;
+        text-align: left;
+    }
+    
+    .benefit-title {
+        margin: 0 0 15px 0;
+        color: #495057;
+        font-size: 16px;
+        font-weight: 600;
+        text-align: center;
+    }
+    
+    .benefit-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 10px;
+    }
+    
+    .benefit-list li {
+        color: #6c757d;
+        font-size: 14px;
+        padding: 8px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .benefit-list li:last-child {
+        border-bottom: none;
+    }
+    
+    .login-actions {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+    }
+    
+    .gomoku-btn-register {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .gomoku-btn-register:hover {
+        background: linear-gradient(135deg, #20c997, #17a2b8);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .gomoku-btn-login {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .gomoku-btn-login:hover {
+        background: linear-gradient(135deg, #0056b3, #004085);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .login-note {
+        margin: 0;
+        color: #6c757d;
+        font-size: 13px;
+        font-style: italic;
+    }
+
 /* レスポンシブデザイン */
 @media (max-width: 768px) {
     .gomoku-game {
@@ -278,6 +519,39 @@
     }
 }
 
+/* レスポンシブでのライトテーマ盤面色 */
+@media (max-width: 768px) {
+    .gomoku-game:not(.dark-theme) .gomoku-board {
+        background: #8B4513;
+        border-color: #654321;
+    }
+    
+    .gomoku-game:not(.dark-theme) .gomoku-cell {
+        background: #DEB887;
+        border-color: #654321;
+    }
+    
+    .gomoku-game:not(.dark-theme) .gomoku-cell:hover {
+        background: #F4A460;
+    }
+    
+    /* モバイルでの登録案内 */
+    .login-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .gomoku-btn-register,
+    .gomoku-btn-login {
+        width: 100%;
+        max-width: 200px;
+    }
+    
+    .benefit-list {
+        grid-template-columns: 1fr;
+    }
+}
+
 @media (max-width: 480px) {
     .gomoku-board {
         padding: 15px;
@@ -296,6 +570,40 @@
     
     .gomoku-title {
         font-size: 20px;
+    }
+}
+
+/* 小画面でのライトテーマ盤面色 */
+@media (max-width: 480px) {
+    .gomoku-game:not(.dark-theme) .gomoku-board {
+        background: #8B4513;
+        border-color: #654321;
+    }
+    
+    .gomoku-game:not(.dark-theme) .gomoku-cell {
+        background: #DEB887;
+        border-color: #654321;
+    }
+    
+    .gomoku-game:not(.dark-theme) .gomoku-cell:hover {
+        background: #F4A460;
+    }
+    
+    /* 小画面での登録案内 */
+    .gomoku-login-notice {
+        padding: 20px 15px;
+    }
+    
+    .gomoku-login-notice h4 {
+        font-size: 18px;
+    }
+    
+    .benefit-title {
+        font-size: 14px;
+    }
+    
+    .benefit-list li {
+        font-size: 13px;
     }
 }
 
@@ -355,4 +663,243 @@
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+/* ダークモード対応 */
+@media (prefers-color-scheme: dark) {
+    .gomoku-game {
+        background: #2d3748;
+        color: #e2e8f0;
+    }
+    
+    .gomoku-header {
+        background: linear-gradient(135deg, #4c51bf, #553c9a);
+    }
+    
+    .gomoku-board {
+        background: #4a5568;
+        border-color: #2d3748;
+    }
+    
+    .gomoku-cell {
+        background: #718096;
+        border-color: #4a5568;
+    }
+    
+    .gomoku-cell:hover {
+        background: #a0aec0;
+    }
+    
+    .gomoku-cell.white::before {
+        background: radial-gradient(circle at 30% 30%, #ffffff, #e2e8f0);
+        border: 2px solid #2d3748;
+        box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    
+    .gomoku-cell.black::before {
+        background: radial-gradient(circle at 30% 30%, #4a5568, #2d3748);
+        border: 2px solid #e2e8f0;
+        box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    }
+    
+    .gomoku-scores,
+    .gomoku-history {
+        background: #4a5568;
+        color: #e2e8f0;
+        border: 1px solid #2d3748;
+    }
+    
+    .score-item {
+        border-bottom-color: #2d3748;
+    }
+    
+    .player-label {
+        color: #e2e8f0;
+    }
+    
+    .score-value {
+        color: #90cdf4;
+    }
+    
+    .gomoku-history h4 {
+        color: #e2e8f0;
+    }
+    
+    .history-list {
+        color: #a0aec0;
+    }
+    
+    .history-item {
+        border-bottom-color: #2d3748;
+    }
+    
+    .history-time {
+        color: #718096;
+    }
+    
+    .history-winner {
+        color: #e2e8f0;
+    }
+    
+    .history-moves {
+        color: #a0aec0;
+    }
+    
+    .ai-level-selector {
+        background: rgba(0, 0, 0, 0.2);
+    }
+    
+    .gomoku-select {
+        background: rgba(0, 0, 0, 0.3);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+    
+    .gomoku-select option {
+        background: #2d3748;
+    }
+}
+
+/* ライトテーマ（デフォルト） */
+.gomoku-game {
+    background: #f8f9fa;
+    color: #333;
+}
+
+/* ダークテーマクラスが明示的に設定されている場合 */
+.gomoku-game.dark-theme {
+    background: #2d3748;
+    color: #e2e8f0;
+}
+
+/* ライトテーマでのHタグスタイルリセット */
+.gomoku-game .gomoku-header h1,
+.gomoku-game .gomoku-header h2,
+.gomoku-game .gomoku-header h3,
+.gomoku-game .gomoku-header h4,
+.gomoku-game .gomoku-header h5,
+.gomoku-game .gomoku-header h6 {
+    margin: 0;
+    padding: 0;
+    line-height: 1.2;
+}
+
+/* ダークテーマでのHタグスタイルリセット */
+.gomoku-game.dark-theme .gomoku-header h1,
+.gomoku-game.dark-theme .gomoku-header h2,
+.gomoku-game.dark-theme .gomoku-header h3,
+.gomoku-game.dark-theme .gomoku-header h4,
+.gomoku-game.dark-theme .gomoku-header h5,
+.gomoku-game.dark-theme .gomoku-header h6 {
+    margin: 0;
+    padding: 0;
+    line-height: 1.2;
+}
+
+.gomoku-game.dark-theme .gomoku-header {
+    background: linear-gradient(135deg, #4c51bf, #553c9a);
+}
+
+.gomoku-game.dark-theme .gomoku-board {
+    background: #4a5568;
+    border-color: #2d3748;
+}
+
+.gomoku-game.dark-theme .gomoku-cell {
+    background: #718096;
+    border-color: #4a5568;
+}
+
+.gomoku-game.dark-theme .gomoku-cell:hover {
+    background: #a0aec0;
+}
+
+.gomoku-game.dark-theme .gomoku-cell.white::before {
+    background: radial-gradient(circle at 30% 30%, #ffffff, #e2e8f0);
+    border: 2px solid #2d3748;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.gomoku-game.dark-theme .gomoku-cell.black::before {
+    background: radial-gradient(circle at 30% 30%, #4a5568, #2d3748);
+    border: 2px solid #e2e8f0;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+.gomoku-game.dark-theme .gomoku-scores,
+.gomoku-game.dark-theme .gomoku-history {
+    background: #4a5568;
+    color: #e2e8f0;
+    border: 1px solid #2d3748;
+}
+
+.gomoku-game.dark-theme .score-item {
+    border-bottom-color: #2d3748;
+}
+
+.gomoku-game.dark-theme .player-label {
+    color: #e2e8f0;
+}
+
+.gomoku-game.dark-theme .score-value {
+    color: #90cdf4;
+}
+
+.gomoku-game.dark-theme .gomoku-history h4 {
+    color: #e2e8f0;
+}
+
+    .gomoku-game.dark-theme .history-list {
+        color: #a0aec0;
+    }
+    
+    .gomoku-game.dark-theme .history-item {
+        border-bottom-color: #2d3748;
+    }
+    
+    .gomoku-game.dark-theme .history-time {
+        color: #718096;
+    }
+    
+    .gomoku-game.dark-theme .history-winner {
+        color: #e2e8f0;
+    }
+    
+    .gomoku-game.dark-theme .history-moves {
+        color: #a0aec0;
+    }
+    
+    .gomoku-game.dark-theme .gomoku-login-notice {
+        background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+        border-color: #4a5568;
+        color: #e2e8f0;
+    }
+    
+    .gomoku-game.dark-theme .gomoku-login-notice h4 {
+        color: #e2e8f0;
+    }
+    
+    .gomoku-game.dark-theme .benefit-title {
+        color: #e2e8f0;
+    }
+    
+    .gomoku-game.dark-theme .benefit-list li {
+        color: #a0aec0;
+        border-bottom-color: #2d3748;
+    }
+    
+    .gomoku-game.dark-theme .login-note {
+        color: #a0aec0;
+    }
+    
+    .gomoku-game.dark-theme .ai-level-selector {
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+.gomoku-game.dark-theme .gomoku-select {
+    background: rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.gomoku-game.dark-theme .gomoku-select option {
+    background: #2d3748;
 }

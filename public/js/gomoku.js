@@ -14,8 +14,9 @@
             this.winner = null;
             this.moveHistory = [];
             this.scores = { black: 0, white: 0 };
-            this.aiMode = false;
+            this.aiLevel = 'medium'; // AIレベル
             this.aiPlayer = 2; // 白がAI
+            this.isLoggedIn = false; // ログイン状態
             
             this.init();
         }
@@ -24,7 +25,10 @@
             this.initBoard();
             this.bindEvents();
             this.updateUI();
-            this.checkAIMode();
+            this.checkAILevel();
+            this.checkDarkMode();
+            this.checkLoginStatus();
+            this.loadGameHistory();
         }
         
         /**
@@ -65,9 +69,9 @@
                 this.undoMove();
             });
             
-            // AI対戦トグルボタン
-            $(document).on('click', '#toggle-ai', () => {
-                this.toggleAIMode();
+            // AIレベル選択
+            $(document).on('change', '#ai-level', (e) => {
+                this.changeAILevel($(e.target).val());
             });
         }
         
@@ -105,7 +109,7 @@
             this.updateUI();
             
             // AIの手番の場合、自動で手を打つ
-            if (this.aiMode && this.currentPlayer === this.aiPlayer && !this.gameOver) {
+            if (this.currentPlayer === this.aiPlayer && !this.gameOver) {
                 setTimeout(() => {
                     this.makeAIMove();
                 }, 500); // 0.5秒後にAIが手を打つ
@@ -210,8 +214,8 @@
             this.updateUI();
             $('#game-status').text('ゲーム中');
             
-            // AIモードの場合、AIが先手の場合は自動で手を打つ
-            if (this.aiMode && this.aiPlayer === 1 && !this.gameOver) {
+            // AIが先手の場合は自動で手を打つ
+            if (this.aiPlayer === 1 && !this.gameOver) {
                 setTimeout(() => {
                     this.makeAIMove();
                 }, 500);
@@ -287,69 +291,149 @@
             
             const winnerText = this.winner === 1 ? '黒' : '白';
             
-            $.ajax({
-                url: gomoku_ajax.ajax_url,
-                type: 'POST',
-                data: {
-                    action: 'gomoku_save_score',
-                    winner: winnerText,
-                    moves: this.moveHistory.length,
-                    nonce: gomoku_ajax.nonce
-                },
-                success: function(response) {
-                    console.log('スコアが保存されました');
-                },
-                error: function() {
-                    console.log('スコアの保存に失敗しました');
+            // ログインユーザーのみスコアを保存
+            if (this.isLoggedIn) {
+                $.ajax({
+                    url: gomoku_ajax.ajax_url,
+                    type: 'POST',
+                    data: {
+                        action: 'gomoku_save_score',
+                        winner: winnerText,
+                        moves: this.moveHistory.length,
+                        nonce: gomoku_ajax.nonce
+                    },
+                    success: (response) => {
+                        console.log('スコアが保存されました');
+                        this.addGameHistory(winnerText, this.moveHistory.length);
+                    },
+                    error: function() {
+                        console.log('スコアの保存に失敗しました');
+                    }
+                });
+            } else {
+                console.log('ゲストユーザーのため、スコアは保存されません');
+            }
+        }
+        
+        /**
+         * ゲーム履歴に追加
+         */
+        addGameHistory(winner, moves) {
+            const historyList = $('#game-history');
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('ja-JP', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            
+            const historyItem = `
+                <div class="history-item">
+                    <span class="history-time">${timeString}</span>
+                    <span class="history-winner">${winner}の勝利</span>
+                    <span class="history-moves">${moves}手</span>
+                </div>
+            `;
+            
+            historyList.prepend(historyItem);
+            
+            // 履歴が多すぎる場合は古いものを削除
+            const historyItems = historyList.find('.history-item');
+            if (historyItems.length > 10) {
+                historyItems.slice(10).remove();
+            }
+            
+            // ローカルストレージに保存
+            this.saveHistoryToStorage();
+        }
+        
+        /**
+         * ゲーム履歴を読み込み
+         */
+        loadGameHistory() {
+            // ログインユーザーのみ履歴を読み込み
+            if (!this.isLoggedIn) {
+                console.log('ゲストユーザーのため、履歴は読み込まれません');
+                return;
+            }
+            
+            // ローカルストレージから履歴を読み込み
+            const savedHistory = localStorage.getItem('gomoku_history');
+            if (savedHistory) {
+                try {
+                    const history = JSON.parse(savedHistory);
+                    this.displayHistory(history);
+                } catch (e) {
+                    console.log('履歴の読み込みに失敗しました');
                 }
+            }
+        }
+        
+        /**
+         * 履歴を表示
+         */
+        displayHistory(history) {
+            const historyList = $('#game-history');
+            historyList.empty();
+            
+            history.forEach(item => {
+                const historyItem = `
+                    <div class="history-item">
+                        <span class="history-time">${item.time}</span>
+                        <span class="history-winner">${item.winner}の勝利</span>
+                        <span class="history-moves">${item.moves}手</span>
+                    </div>
+                `;
+                historyList.append(historyItem);
             });
         }
         
         /**
-         * AIモードの確認
+         * 履歴をローカルストレージに保存
          */
-        checkAIMode() {
-            const aiModeAttr = $('#gomoku-game').data('ai-mode');
-            if (aiModeAttr === 'true') {
-                this.aiMode = true;
-                this.updateAIToggleButton();
-            }
-        }
-        
-        /**
-         * AIモードの切り替え
-         */
-        toggleAIMode() {
-            this.aiMode = !this.aiMode;
-            this.updateAIToggleButton();
+        saveHistoryToStorage() {
+            const historyList = $('#game-history');
+            const historyItems = historyList.find('.history-item');
+            const history = [];
             
-            if (this.aiMode) {
-                // AIモード開始時の処理
-                if (this.currentPlayer === this.aiPlayer && !this.gameOver) {
-                    setTimeout(() => {
-                        this.makeAIMove();
-                    }, 500);
-                }
+            historyItems.each(function() {
+                const time = $(this).find('.history-time').text();
+                const winner = $(this).find('.history-winner').text().replace('の勝利', '');
+                const moves = $(this).find('.history-moves').text().replace('手', '');
+                
+                history.push({
+                    time: time,
+                    winner: winner,
+                    moves: moves
+                });
+            });
+            
+            localStorage.setItem('gomoku_history', JSON.stringify(history));
+        }
+        
+        /**
+         * AIレベルの確認
+         */
+        checkAILevel() {
+            const aiLevelAttr = $('#gomoku-game').data('ai-level');
+            if (aiLevelAttr) {
+                this.aiLevel = aiLevelAttr;
+                $('#ai-level').val(this.aiLevel);
             }
         }
         
         /**
-         * AIトグルボタンの更新
+         * AIレベルの変更
          */
-        updateAIToggleButton() {
-            const button = $('#toggle-ai');
-            if (this.aiMode) {
-                button.text('AI対戦: ON').removeClass('gomoku-btn-ai-off').addClass('gomoku-btn-ai-on');
-            } else {
-                button.text('AI対戦: OFF').removeClass('gomoku-btn-ai-on').addClass('gomoku-btn-ai-off');
-            }
+        changeAILevel(level) {
+            this.aiLevel = level;
+            console.log('AIレベルを変更しました:', level);
         }
         
         /**
          * AIの手を打つ
          */
         makeAIMove() {
-            if (!this.aiMode || this.currentPlayer !== this.aiPlayer || this.gameOver) {
+            if (this.currentPlayer !== this.aiPlayer || this.gameOver) {
                 return;
             }
             
@@ -370,12 +454,15 @@
         findBestMove() {
             let bestScore = -Infinity;
             let bestMove = null;
+            let candidates = [];
             
             // 空いているマスを全て評価
             for (let i = 0; i < this.boardSize; i++) {
                 for (let j = 0; j < this.boardSize; j++) {
                     if (this.board[i][j] === 0) {
                         const score = this.evaluatePosition(i, j);
+                        candidates.push({ row: i, col: j, score: score });
+                        
                         if (score > bestScore) {
                             bestScore = score;
                             bestMove = { row: i, col: j };
@@ -384,7 +471,44 @@
                 }
             }
             
-            return bestMove;
+            // AIレベルに応じた戦略
+            if (this.aiLevel === 'easy') {
+                return this.getRandomMove(candidates);
+            } else if (this.aiLevel === 'medium') {
+                return this.getMediumMove(candidates, bestScore);
+            } else {
+                return bestMove; // 上級は最適な手を選択
+            }
+        }
+        
+        /**
+         * 初級AI: ランダムな手を選択
+         */
+        getRandomMove(candidates) {
+            if (candidates.length === 0) return null;
+            const randomIndex = Math.floor(Math.random() * candidates.length);
+            return candidates[randomIndex];
+        }
+        
+        /**
+         * 中級AI: 時々ミスをする
+         */
+        getMediumMove(candidates, bestScore) {
+            if (candidates.length === 0) return null;
+            
+            // 30%の確率でランダムな手を選択（ミス）
+            if (Math.random() < 0.3) {
+                return this.getRandomMove(candidates);
+            }
+            
+            // 70%の確率で良い手を選択
+            const goodMoves = candidates.filter(move => move.score >= bestScore * 0.7);
+            if (goodMoves.length > 0) {
+                const randomIndex = Math.floor(Math.random() * goodMoves.length);
+                return goodMoves[randomIndex];
+            }
+            
+            return candidates[0];
         }
         
         /**
@@ -504,6 +628,134 @@
             }
             
             return baseScore;
+        }
+        
+        /**
+         * ダークモードの検出と適用
+         */
+        checkDarkMode() {
+            const darkThemeAttr = $('#gomoku-game').data('dark-theme');
+            console.log('テーマ設定:', darkThemeAttr);
+            
+            // 明示的にダークテーマが指定されている場合
+            if (darkThemeAttr === 'true' || darkThemeAttr === 'dark') {
+                this.applyDarkMode();
+                return;
+            }
+            
+            // 明示的にライトテーマが指定されている場合
+            if (darkThemeAttr === 'false' || darkThemeAttr === 'light') {
+                this.removeDarkMode();
+                return;
+            }
+            
+            // 自動検出の場合（auto）
+            this.detectAndApplyDarkMode();
+        }
+        
+        /**
+         * ダークモードの自動検出と適用
+         */
+        detectAndApplyDarkMode() {
+            // システムのダークモード設定をチェック
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                this.applyDarkMode();
+            } else {
+                this.removeDarkMode();
+            }
+            
+            // ダークモードの変更を監視
+            if (window.matchMedia) {
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+                    if (e.matches) {
+                        this.applyDarkMode();
+                    } else {
+                        this.removeDarkMode();
+                    }
+                });
+            }
+            
+            // ページ内のダークテーマクラスをチェック
+            this.checkPageDarkMode();
+        }
+        
+        /**
+         * ページ内のダークテーマクラスをチェック
+         */
+        checkPageDarkMode() {
+            const hasDarkClass = document.body.classList.contains('dark-theme') || 
+                                document.body.classList.contains('dark-mode') ||
+                                document.body.classList.contains('dark') ||
+                                document.documentElement.classList.contains('dark-theme') ||
+                                document.documentElement.classList.contains('dark-mode') ||
+                                document.documentElement.classList.contains('dark') ||
+                                document.body.classList.contains('wp-dark-mode') ||
+                                document.body.classList.contains('dark-theme-active');
+            
+            if (hasDarkClass) {
+                this.applyDarkMode();
+            } else {
+                this.removeDarkMode();
+            }
+            
+            // ページのクラス変更を監視
+            this.observePageChanges();
+        }
+        
+        /**
+         * ページの変更を監視
+         */
+        observePageChanges() {
+            // MutationObserverを使用してページのクラス変更を監視
+            if (window.MutationObserver) {
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                            this.checkPageDarkMode();
+                        }
+                    });
+                });
+                
+                observer.observe(document.body, {
+                    attributes: true,
+                    attributeFilter: ['class']
+                });
+                
+                observer.observe(document.documentElement, {
+                    attributes: true,
+                    attributeFilter: ['class']
+                });
+            }
+        }
+        
+        /**
+         * ダークモードを適用
+         */
+        applyDarkMode() {
+            $('#gomoku-game').addClass('dark-theme');
+            console.log('ダークテーマを適用しました');
+        }
+        
+        /**
+         * ダークモードを削除
+         */
+        removeDarkMode() {
+            $('#gomoku-game').removeClass('dark-theme');
+            console.log('ライトテーマを適用しました');
+        }
+        
+        /**
+         * ログイン状態をチェック
+         */
+        checkLoginStatus() {
+            // ゲーム履歴セクションの存在でログイン状態を判定
+            if ($('#game-history').length > 0) {
+                this.isLoggedIn = true;
+                console.log('ログインユーザーとして認識しました');
+            } else {
+                this.isLoggedIn = false;
+                console.log('ゲストユーザーとして認識しました');
+            }
         }
     }
     

@@ -39,13 +39,15 @@
 ```
 [gomoku board_size="19"]
 [gomoku board_size="13" theme="compact"]
-[gomoku ai_mode="true"]
+[gomoku ai_level="hard"]
+[gomoku dark_theme="dark"]
 ```
 
 ### 利用可能なパラメータ
 - `board_size`: ボードサイズ（13, 15, 19）
 - `theme`: テーマ（default, compact, dark）
-- `ai_mode`: AI対戦モード（true/false）
+- `ai_level`: AIレベル（easy, medium, hard）
+- `dark_theme`: ダークテーマ設定（auto, light, dark）
 
 ## ゲームの遊び方
 
@@ -58,7 +60,7 @@
 - **一手戻し**: 直前の手を戻す
 - **リセット**: ゲームを最初からやり直す
 - **スコア記録**: 勝利回数を記録
-- **AI対戦**: コンピュータと対戦可能
+- **AI対戦**: コンピュータと対戦（初級・中級・上級）
 
 ## 管理画面
 
@@ -130,6 +132,19 @@ gomoku/
 3. プラグインの競合を確認
 
 ## 更新履歴
+
+### Version 1.3.0
+- AI対戦モードを常時ONに変更
+- AIレベル選択機能を追加（初級・中級・上級）
+- 初級AI: ランダムな手を選択
+- 中級AI: 時々ミスをする戦略
+- 上級AI: 最適な手を選択
+
+### Version 1.2.0
+- ダークテーマ対応の追加
+- システムのダークモード設定を自動検出
+- 白石の視認性を改善
+- テーマの明示的設定が可能
 
 ### Version 1.1.0
 - AI対戦機能の追加

@@ -12,18 +12,27 @@ if (isset($_POST['submit']) && wp_verify_nonce($_POST['gomoku_settings_nonce'], 
     $board_size = intval($_POST['board_size']);
     $enable_scores = isset($_POST['enable_scores']) ? 1 : 0;
     $max_history = intval($_POST['max_history']);
+    $ai_difficulty = sanitize_text_field($_POST['ai_difficulty']);
+    $dark_theme = sanitize_text_field($_POST['dark_theme']);
     
     update_option('gomoku_board_size', $board_size);
     update_option('gomoku_enable_scores', $enable_scores);
     update_option('gomoku_max_history', $max_history);
+    update_option('gomoku_ai_difficulty', $ai_difficulty);
+    update_option('gomoku_dark_theme', $dark_theme);
     
     echo '<div class="notice notice-success"><p>設定が保存されました。</p></div>';
+    
+    // 設定保存後にページをリロードして最新の値を表示
+    echo '<script>setTimeout(function(){ location.reload(); }, 1000);</script>';
 }
 
 // 現在の設定値を取得
 $board_size = get_option('gomoku_board_size', 15);
 $enable_scores = get_option('gomoku_enable_scores', 1);
 $max_history = get_option('gomoku_max_history', 10);
+$ai_difficulty = get_option('gomoku_ai_difficulty', 'medium');
+$dark_theme = get_option('gomoku_dark_theme', 'auto');
 
 // 統計情報の取得
 $scores = get_option('gomoku_scores', array());
@@ -92,11 +101,25 @@ foreach ($scores as $score) {
                         </th>
                         <td>
                             <select name="ai_difficulty" id="ai_difficulty">
-                                <option value="easy">初級</option>
-                                <option value="medium" selected>中級</option>
-                                <option value="hard">上級</option>
+                                <option value="easy" <?php selected($ai_difficulty, 'easy'); ?>>初級</option>
+                                <option value="medium" <?php selected($ai_difficulty, 'medium'); ?>>中級</option>
+                                <option value="hard" <?php selected($ai_difficulty, 'hard'); ?>>上級</option>
                             </select>
                             <p class="description">AI対戦の難易度を設定してください。</p>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <th scope="row">
+                            <label for="dark_theme">ダークテーマ</label>
+                        </th>
+                        <td>
+                            <select name="dark_theme" id="dark_theme">
+                                <option value="auto" <?php selected($dark_theme, 'auto'); ?>>自動検出</option>
+                                <option value="light" <?php selected($dark_theme, 'light'); ?>>ライトテーマ</option>
+                                <option value="dark" <?php selected($dark_theme, 'dark'); ?>>ダークテーマ</option>
+                            </select>
+                            <p class="description">テーマの設定方法を選択してください。</p>
                         </td>
                     </tr>
                 </table>
@@ -147,14 +170,16 @@ foreach ($scores as $score) {
                 <h3>パラメータ</h3>
                 <ul>
                     <li><code>board_size</code>: ボードサイズ（例: <code>[gomoku board_size="19"]</code>）</li>
-                    <li><code>theme</code>: テーマ（例: <code>[gomoku theme="dark"]</code>）</li>
+                    <li><code>ai_level</code>: AIレベル（例: <code>[gomoku ai_level="hard"]</code>）</li>
+                    <li><code>dark_theme</code>: ダークテーマ（例: <code>[gomoku dark_theme="dark"]</code>）</li>
                 </ul>
                 
                 <h3>例</h3>
                 <ul>
-                    <li><code>[gomoku]</code> - デフォルト設定（15×15）</li>
+                    <li><code>[gomoku]</code> - 管理画面の設定を使用</li>
                     <li><code>[gomoku board_size="19"]</code> - 19×19のボード</li>
-                    <li><code>[gomoku board_size="13" theme="compact"]</code> - 13×13のコンパクトテーマ</li>
+                    <li><code>[gomoku ai_level="easy"]</code> - 初級AIで対戦</li>
+                    <li><code>[gomoku dark_theme="dark"]</code> - 強制ダークテーマ</li>
                 </ul>
             </div>
         </div>
