@@ -17,6 +17,15 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// デバッグモードの設定（本番環境では無効にする）
+if (!defined('WP_DEBUG') || !WP_DEBUG) {
+    error_reporting(0);
+    ini_set('display_errors', 0);
+} else {
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+}
+
 // プラグインの定数定義
 define('GOMOKU_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('GOMOKU_PLUGIN_PATH', plugin_dir_path(__FILE__));
@@ -46,26 +55,38 @@ class Gomoku_Plugin {
      * プラグインの初期化
      */
     public function init() {
-        // ショートコードの登録
-        require_once GOMOKU_PLUGIN_PATH . 'includes/class-gomoku-shortcode.php';
-        new Gomoku_Shortcode();
-        
-        // ゲームロジッククラスの読み込み
-        require_once GOMOKU_PLUGIN_PATH . 'includes/class-gomoku-game.php';
-        
-        // AJAX処理の登録
-        add_action('wp_ajax_gomoku_force_update_check', array($this, 'force_update_check'));
-        add_action('wp_ajax_gomoku_toggle_auto_update', array($this, 'toggle_auto_update'));
-        
-        // プラグイン情報の詳細表示を有効化
-        add_filter('plugin_row_meta', array($this, 'add_plugin_row_meta'), 10, 2);
-        add_filter('plugins_api', array($this, 'plugins_api_handler'), 10, 3);
-        
-        // プラグインの自動更新状態を制御
-        add_filter('auto_update_plugin', array($this, 'control_auto_update'), 10, 2);
-        
-        // プラグインリストの自動更新ボタンをカスタマイズ
-        add_filter('plugin_auto_update_setting_html', array($this, 'customize_auto_update_button'), 10, 2);
+        try {
+            // ショートコードの登録
+            if (file_exists(GOMOKU_PLUGIN_PATH . 'includes/class-gomoku-shortcode.php')) {
+                require_once GOMOKU_PLUGIN_PATH . 'includes/class-gomoku-shortcode.php';
+                new Gomoku_Shortcode();
+            } else {
+                error_log('Gomoku Plugin: class-gomoku-shortcode.php が見つかりません');
+            }
+            
+            // ゲームロジッククラスの読み込み
+            if (file_exists(GOMOKU_PLUGIN_PATH . 'includes/class-gomoku-game.php')) {
+                require_once GOMOKU_PLUGIN_PATH . 'includes/class-gomoku-game.php';
+            } else {
+                error_log('Gomoku Plugin: class-gomoku-game.php が見つかりません');
+            }
+            
+            // AJAX処理の登録
+            add_action('wp_ajax_gomoku_force_update_check', array($this, 'force_update_check'));
+            add_action('wp_ajax_gomoku_toggle_auto_update', array($this, 'toggle_auto_update'));
+            
+            // プラグイン情報の詳細表示を有効化
+            add_filter('plugin_row_meta', array($this, 'add_plugin_row_meta'), 10, 2);
+            add_filter('plugins_api', array($this, 'plugins_api_handler'), 10, 3);
+            
+            // プラグインの自動更新状態を制御
+            add_filter('auto_update_plugin', array($this, 'control_auto_update'), 10, 2);
+            
+            // プラグインリストの自動更新ボタンをカスタマイズ
+            add_filter('plugin_auto_update_setting_html', array($this, 'customize_auto_update_button'), 10, 2);
+        } catch (Exception $e) {
+            error_log('Gomoku Plugin 初期化エラー: ' . $e->getMessage());
+        }
     }
     
     /**
@@ -150,8 +171,43 @@ class Gomoku_Plugin {
      * プラグインの有効化時の処理
      */
     public function activate() {
-        // データベーステーブルの作成など
-        flush_rewrite_rules();
+        try {
+            // データベーステーブルの作成
+            global $wpdb;
+            
+            $table_name = $wpdb->prefix . 'gomoku_scores';
+            $charset_collate = $wpdb->get_charset_collate();
+            
+            $sql = "CREATE TABLE IF NOT EXISTS $table_name (
+                id mediumint(9) NOT NULL AUTO_INCREMENT,
+                user_id bigint(20) NOT NULL,
+                winner varchar(10) NOT NULL,
+                board_size int(11) NOT NULL,
+                moves_count int(11) NOT NULL,
+                game_date datetime DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                KEY user_id (user_id),
+                KEY game_date (game_date)
+            ) $charset_collate;";
+            
+            require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+            dbDelta($sql);
+            
+            // デフォルト設定の追加
+            add_option('gomoku_board_size', 15);
+            add_option('gomoku_enable_scores', 1);
+            add_option('gomoku_max_history', 10);
+            add_option('gomoku_ai_difficulty', 'medium');
+            add_option('gomoku_dark_theme', 'auto');
+            add_option('gomoku_character_mode', 'stones');
+            add_option('gomoku_github_token', '');
+            add_option('gomoku_auto_update', true);
+            
+            flush_rewrite_rules();
+        } catch (Exception $e) {
+            error_log('Gomoku Plugin 有効化エラー: ' . $e->getMessage());
+            // エラーが発生してもプラグインは有効化される
+        }
     }
     
     /**
@@ -167,17 +223,25 @@ class Gomoku_Plugin {
     public function init_updater() {
         // 管理画面でのみアップデートチェッカーを有効化
         if (is_admin()) {
-            require_once GOMOKU_PLUGIN_PATH . 'includes/class-plugin-updater.php';
-            
-            // GitHub Access Token（オプション）
-            $github_token = get_option('gomoku_github_token', '');
-            
-            $this->updater = new Gomoku_Plugin_Updater(
-                __FILE__,
-                GOMOKU_GITHUB_USERNAME,
-                GOMOKU_GITHUB_REPOSITORY,
-                $github_token
-            );
+            try {
+                if (file_exists(GOMOKU_PLUGIN_PATH . 'includes/class-plugin-updater.php')) {
+                    require_once GOMOKU_PLUGIN_PATH . 'includes/class-plugin-updater.php';
+                    
+                    // GitHub Access Token（オプション）
+                    $github_token = get_option('gomoku_github_token', '');
+                    
+                    $this->updater = new Gomoku_Plugin_Updater(
+                        __FILE__,
+                        GOMOKU_GITHUB_USERNAME,
+                        GOMOKU_GITHUB_REPOSITORY,
+                        $github_token
+                    );
+                } else {
+                    error_log('Gomoku Plugin: class-plugin-updater.php が見つかりません');
+                }
+            } catch (Exception $e) {
+                error_log('Gomoku Plugin アップデーター初期化エラー: ' . $e->getMessage());
+            }
         }
     }
     

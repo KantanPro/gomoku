@@ -19,23 +19,24 @@ class Gomoku_Shortcode {
      * ショートコードの表示
      */
     public function render_game($atts) {
-        // 管理画面の設定を取得
-        $default_board_size = get_option('gomoku_board_size', 15);
-        $default_ai_level = get_option('gomoku_ai_difficulty', 'medium');
-        $default_dark_theme = get_option('gomoku_dark_theme', 'auto');
-        $default_character_mode = get_option('gomoku_character_mode', 'stones');
-        
-        $atts = shortcode_atts(array(
-            'board_size' => $default_board_size,
-            'theme' => 'default',
-            'ai_level' => $default_ai_level,
-            'dark_theme' => $default_dark_theme,
-            'character_mode' => $default_character_mode
-        ), $atts);
-        
-        ob_start();
-        ?>
-        <div id="gomoku-game" class="gomoku-game" data-board-size="<?php echo esc_attr($atts['board_size']); ?>" data-theme="<?php echo esc_attr($atts['theme']); ?>" data-ai-level="<?php echo esc_attr($atts['ai_level']); ?>" data-dark-theme="<?php echo esc_attr($atts['dark_theme']); ?>" data-character-mode="<?php echo esc_attr($atts['character_mode']); ?>">
+        try {
+            // 管理画面の設定を取得
+            $default_board_size = get_option('gomoku_board_size', 15);
+            $default_ai_level = get_option('gomoku_ai_difficulty', 'medium');
+            $default_dark_theme = get_option('gomoku_dark_theme', 'auto');
+            $default_character_mode = get_option('gomoku_character_mode', 'stones');
+            
+            $atts = shortcode_atts(array(
+                'board_size' => $default_board_size,
+                'theme' => 'default',
+                'ai_level' => $default_ai_level,
+                'dark_theme' => $default_dark_theme,
+                'character_mode' => $default_character_mode
+            ), $atts);
+            
+            ob_start();
+            ?>
+            <div id="gomoku-game" class="gomoku-game" data-board-size="<?php echo esc_attr($atts['board_size']); ?>" data-theme="<?php echo esc_attr($atts['theme']); ?>" data-ai-level="<?php echo esc_attr($atts['ai_level']); ?>" data-dark-theme="<?php echo esc_attr($atts['dark_theme']); ?>" data-character-mode="<?php echo esc_attr($atts['character_mode']); ?>">
             <div class="gomoku-header">
                 <h3 class="gomoku-title">五目並べゲーム</h3>
                 <div class="gomoku-status">
@@ -113,6 +114,10 @@ class Gomoku_Shortcode {
         </div>
         <?php
         return ob_get_clean();
+        } catch (Exception $e) {
+            error_log('Gomoku Shortcode エラー: ' . $e->getMessage());
+            return '<div class="gomoku-error">ゲームの読み込み中にエラーが発生しました。</div>';
+        }
     }
     
     /**
