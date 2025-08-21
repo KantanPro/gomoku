@@ -2,7 +2,16 @@
 
 # プラグイン情報
 PLUGIN_NAME="gomoku"
-PLUGIN_VERSION="1.0.0"
+
+# プラグインのメインファイルからバージョンを自動取得
+PLUGIN_VERSION=$(grep "Version:" gomoku.php | head -1 | sed 's/.*Version: *//' | tr -d ' ')
+if [ -z "$PLUGIN_VERSION" ]; then
+    echo "エラー: プラグインのバージョンが取得できませんでした"
+    exit 1
+fi
+
+echo "検出されたプラグインバージョン: $PLUGIN_VERSION"
+
 CURRENT_DATE=$(date +"%Y%m%d")
 
 # 出力先ディレクトリ
