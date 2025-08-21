@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Gomoku Game
  * Description: 五目並べゲームをWordPressサイトに組み込むプラグインです。15×15のボードで遊べます。
- * Version: 1.3.1
+ * Version: 1.3.2
  * Author: KantanPro
  * Author URI: https://www.kantanpro.com/kantanpro-page
  * License: GPL v2 or later
