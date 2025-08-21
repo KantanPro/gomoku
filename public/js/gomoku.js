@@ -25,12 +25,12 @@
         init() {
             this.initBoard();
             this.bindEvents();
-            this.updateUI();
             this.checkAILevel();
             this.checkCharacterMode();
             this.checkDarkMode();
             this.checkLoginStatus();
             this.loadGameHistory();
+            this.updateUI();
         }
         
         /**
@@ -236,11 +236,34 @@
             const $cell = $(`.gomoku-cell[data-row="${row}"][data-col="${col}"]`);
             const value = this.board[row][col];
             
+            // 既存のクラスを削除
             $cell.removeClass('black white');
+            
+            // プレイヤーに応じたクラスを追加
             if (value === 1) {
                 $cell.addClass('black');
             } else if (value === 2) {
                 $cell.addClass('white');
+            }
+            
+            // キャラクターモードのクラスが適用されているかチェック
+            this.ensureCharacterModeClass($cell);
+        }
+        
+        /**
+         * キャラクターモードのクラスが適用されているかチェック
+         */
+        ensureCharacterModeClass($cell) {
+            // 現在のキャラクターモードに応じたクラスが適用されているかチェック
+            const hasCharacterClass = $cell.hasClass('character-mode') || 
+                                    $cell.hasClass('fantasy-mode') || 
+                                    $cell.hasClass('anime-mode') || 
+                                    $cell.hasClass('emoji-mode') || 
+                                    $cell.hasClass('demon-mode');
+            
+            // キャラクターモードが選択されているが、クラスが適用されていない場合
+            if (this.characterMode !== 'stones' && !hasCharacterClass) {
+                this.applyCharacterMode();
             }
         }
         
@@ -441,10 +464,16 @@
          */
         checkCharacterMode() {
             const characterModeAttr = $('#gomoku-game').data('character-mode');
+            console.log('HTMLから取得したキャラクターモード:', characterModeAttr);
+            
             if (characterModeAttr) {
                 this.characterMode = characterModeAttr;
                 $('#character-mode').val(this.characterMode);
+                console.log('HTMLの属性からキャラクターモードを設定:', this.characterMode);
+            } else {
+                console.log('HTMLの属性が設定されていないため、デフォルト値を使用:', this.characterMode);
             }
+            
             this.applyCharacterMode();
         }
         
@@ -452,15 +481,24 @@
          * キャラクターモードの変更
          */
         changeCharacterMode(mode) {
+            console.log('キャラクターモードを変更中:', mode);
             this.characterMode = mode;
-            console.log('キャラクターモードを変更しました:', mode);
+            
+            // モードを適用
             this.applyCharacterMode();
+            
+            // 現在のプレイヤー表示も更新
+            this.updateUI();
+            
+            console.log('キャラクターモードの変更完了:', mode);
         }
         
         /**
          * キャラクターモードを適用
          */
         applyCharacterMode() {
+            console.log('キャラクターモードを適用中:', this.characterMode);
+            
             // 既存のクラスを削除
             $('.gomoku-cell').removeClass('character-mode fantasy-mode anime-mode emoji-mode demon-mode');
             
@@ -479,19 +517,37 @@
             
             // 既存の石を再描画
             this.redrawBoard();
+            
+            console.log('キャラクターモードの適用完了');
         }
         
         /**
          * ボードを再描画
          */
         redrawBoard() {
+            console.log('ボードを再描画中...');
+            
             for (let i = 0; i < this.boardSize; i++) {
                 for (let j = 0; j < this.boardSize; j++) {
                     if (this.board[i][j] !== 0) {
-                        this.updateCell(i, j);
+                        // セルの要素を取得
+                        const $cell = $(`.gomoku-cell[data-row="${i}"][data-col="${j}"]`);
+                        
+                        // プレイヤーに応じたクラスを再適用
+                        $cell.removeClass('black white');
+                        if (this.board[i][j] === 1) {
+                            $cell.addClass('black');
+                        } else if (this.board[i][j] === 2) {
+                            $cell.addClass('white');
+                        }
+                        
+                        // キャラクターモードのクラスが適用されているかチェック
+                        this.ensureCharacterModeClass($cell);
                     }
                 }
             }
+            
+            console.log('ボードの再描画完了');
         }
         
         /**
