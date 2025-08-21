@@ -7,30 +7,40 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// エラーハンドリングの設定
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+
 // 設定の保存処理
 if (isset($_POST['submit']) && wp_verify_nonce($_POST['gomoku_settings_nonce'], 'gomoku_settings')) {
-    $board_size = intval($_POST['board_size']);
-    $enable_scores = isset($_POST['enable_scores']) ? 1 : 0;
-    $max_history = intval($_POST['max_history']);
-    $ai_difficulty = sanitize_text_field($_POST['ai_difficulty']);
-    $dark_theme = sanitize_text_field($_POST['dark_theme']);
-    $character_mode = sanitize_text_field($_POST['character_mode']);
-    $github_token = sanitize_text_field($_POST['github_token']);
-    $auto_update = isset($_POST['auto_update']) ? 1 : 0;
-    
-    update_option('gomoku_board_size', $board_size);
-    update_option('gomoku_enable_scores', $enable_scores);
-    update_option('gomoku_max_history', $max_history);
-    update_option('gomoku_ai_difficulty', $ai_difficulty);
-    update_option('gomoku_dark_theme', $dark_theme);
-    update_option('gomoku_character_mode', $character_mode);
-    update_option('gomoku_github_token', $github_token);
-    update_option('gomoku_auto_update', $auto_update);
-    
-    echo '<div class="notice notice-success"><p>設定が保存されました。</p></div>';
-    
-    // 設定保存後にページをリロードして最新の値を表示
-    echo '<script>setTimeout(function(){ location.reload(); }, 1000);</script>';
+    try {
+        $board_size = intval($_POST['board_size']);
+        $enable_scores = isset($_POST['enable_scores']) ? 1 : 0;
+        $max_history = intval($_POST['max_history']);
+        $ai_difficulty = sanitize_text_field($_POST['ai_difficulty']);
+        $dark_theme = sanitize_text_field($_POST['dark_theme']);
+        $character_mode = sanitize_text_field($_POST['character_mode']);
+        $github_token = sanitize_text_field($_POST['github_token']);
+        $auto_update = isset($_POST['auto_update']) ? 1 : 0;
+        
+        update_option('gomoku_board_size', $board_size);
+        update_option('gomoku_enable_scores', $enable_scores);
+        update_option('gomoku_max_history', $max_history);
+        update_option('gomoku_ai_difficulty', $ai_difficulty);
+        update_option('gomoku_dark_theme', $dark_theme);
+        update_option('gomoku_character_mode', $character_mode);
+        update_option('gomoku_github_token', $github_token);
+        update_option('gomoku_auto_update', $auto_update);
+        
+        echo '<div class="notice notice-success"><p>設定が保存されました。</p></div>';
+        
+        // 設定保存後にページをリロードして最新の値を表示
+        echo '<script>setTimeout(function(){ location.reload(); }, 1000);</script>';
+    } catch (Exception $e) {
+        error_log('Gomoku Admin 設定保存エラー: ' . $e->getMessage());
+        echo '<div class="notice notice-error"><p>設定の保存中にエラーが発生しました。エラーログを確認してください。</p></div>';
+    }
 }
 
 // 現在の設定値を取得
