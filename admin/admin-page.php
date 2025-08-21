@@ -15,6 +15,7 @@ if (isset($_POST['submit']) && wp_verify_nonce($_POST['gomoku_settings_nonce'], 
     $ai_difficulty = sanitize_text_field($_POST['ai_difficulty']);
     $dark_theme = sanitize_text_field($_POST['dark_theme']);
     $character_mode = sanitize_text_field($_POST['character_mode']);
+    $github_token = sanitize_text_field($_POST['github_token']);
     
     update_option('gomoku_board_size', $board_size);
     update_option('gomoku_enable_scores', $enable_scores);
@@ -22,6 +23,7 @@ if (isset($_POST['submit']) && wp_verify_nonce($_POST['gomoku_settings_nonce'], 
     update_option('gomoku_ai_difficulty', $ai_difficulty);
     update_option('gomoku_dark_theme', $dark_theme);
     update_option('gomoku_character_mode', $character_mode);
+    update_option('gomoku_github_token', $github_token);
     
     echo '<div class="notice notice-success"><p>設定が保存されました。</p></div>';
     
@@ -36,6 +38,7 @@ $max_history = get_option('gomoku_max_history', 10);
 $ai_difficulty = get_option('gomoku_ai_difficulty', 'medium');
 $dark_theme = get_option('gomoku_dark_theme', 'auto');
 $character_mode = get_option('gomoku_character_mode', 'stones');
+$github_token = get_option('gomoku_github_token', '');
 
 // 統計情報の取得
 $scores = get_option('gomoku_scores', array());
@@ -142,6 +145,16 @@ foreach ($scores as $score) {
                             <p class="description">ゲームで使用するキャラクターの種類を選択してください。</p>
                         </td>
                     </tr>
+                    
+                    <tr>
+                        <th scope="row">
+                            <label for="github_token">GitHub Access Token</label>
+                        </th>
+                        <td>
+                            <input type="password" name="github_token" id="github_token" value="<?php echo esc_attr($github_token); ?>" class="regular-text">
+                            <p class="description">GitHubの更新チェック用アクセストークン（オプション）。プライベートリポジトリの場合に必要です。</p>
+                        </td>
+                    </tr>
                 </table>
                 
                 <p class="submit">
@@ -205,6 +218,31 @@ foreach ($scores as $score) {
                     <li><code>[gomoku character_mode="emoji"]</code> - 絵文字キャラクター</li>
                     <li><code>[gomoku character_mode="demon"]</code> - 悪魔vsおばけ</li>
                 </ul>
+            </div>
+        </div>
+        
+        <!-- プラグイン情報 -->
+        <div class="gomoku-admin-section">
+            <h2>プラグイン情報</h2>
+            <div class="plugin-info">
+                <div class="info-item">
+                    <span class="info-label">現在のバージョン</span>
+                    <span class="info-value"><?php echo GOMOKU_VERSION; ?></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">GitHubリポジトリ</span>
+                    <span class="info-value">
+                        <a href="https://github.com/<?php echo GOMOKU_GITHUB_USERNAME; ?>/<?php echo GOMOKU_GITHUB_REPOSITORY; ?>" target="_blank">
+                            <?php echo GOMOKU_GITHUB_USERNAME; ?>/<?php echo GOMOKU_GITHUB_REPOSITORY; ?>
+                        </a>
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">更新チェック</span>
+                    <span class="info-value">
+                        <button type="button" id="check-updates" class="button">今すぐ更新をチェック</button>
+                    </span>
+                </div>
             </div>
         </div>
         
@@ -315,4 +353,93 @@ foreach ($scores as $score) {
     font-weight: 600;
     background: #f8f9fa;
 }
+
+.plugin-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.info-item {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    border-left: 4px solid #28a745;
+}
+
+.info-label {
+    display: block;
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.info-value {
+    display: block;
+    font-size: 16px;
+    font-weight: bold;
+    color: #28a745;
+}
+
+.info-value a {
+    color: #28a745;
+    text-decoration: none;
+}
+
+.info-value a:hover {
+    text-decoration: underline;
+}
+
+#check-updates {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#check-updates:hover {
+    background: #218838;
+}
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkUpdatesBtn = document.getElementById('check-updates');
+    if (checkUpdatesBtn) {
+        checkUpdatesBtn.addEventListener('click', function() {
+            this.disabled = true;
+            this.textContent = '更新チェック中...';
+            
+            // WordPressの更新チェックを強制実行
+            fetch(ajaxurl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'action=gomoku_force_update_check&nonce=' + '<?php echo wp_create_nonce("gomoku_force_update"); ?>'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('更新チェックが完了しました。ページをリロードしてください。');
+                    location.reload();
+                } else {
+                    alert('更新チェックでエラーが発生しました。');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('更新チェックでエラーが発生しました。');
+            })
+            .finally(() => {
+                this.disabled = false;
+                this.textContent = '今すぐ更新をチェック';
+            });
+        });
+    }
+});
+</script>

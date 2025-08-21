@@ -1,0 +1,62 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Create plugin archive
+        run: |
+          # プラグインファイルのZIPアーカイブを作成
+          zip -r gomoku-game-${{ github.ref_name }}.zip . \
+            -x "*.git*" \
+            -x "node_modules/*" \
+            -x ".github/*" \
+            -x "tests/*" \
+            -x "*.md" \
+            -x "composer.json" \
+            -x "package.json"
+            
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            Gomoku Game Plugin のリリース ${{ github.ref }}
+            
+            ## 変更点
+            - WordPressプラグインとしての新しいリリース
+            - GitHubから直接更新可能
+            
+            ## インストール方法
+            1. 下記のZIPファイルをダウンロード
+            2. WordPress管理画面でプラグインをアップロード
+            3. プラグインを有効化
+            
+            ## 要件
+            - WordPress 5.0以上
+            - PHP 7.4以上
+          draft: false
+          prerelease: false
+          
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./gomoku-game-${{ github.ref_name }}.zip
+          asset_name: gomoku-game-${{ github.ref_name }}.zip
+          asset_content_type: application/zip

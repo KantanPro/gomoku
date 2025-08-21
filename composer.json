@@ -1,0 +1,39 @@
+{
+    "name": "yourusername/gomoku-wordpress-plugin",
+    "description": "五目並べゲームをWordPressサイトに組み込むプラグイン",
+    "type": "wordpress-plugin",
+    "version": "1.3.0",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Your Name",
+            "homepage": "https://github.com/yourusername"
+        }
+    ],
+    "keywords": [
+        "wordpress",
+        "plugin",
+        "game",
+        "gomoku",
+        "五目並べ"
+    ],
+    "homepage": "https://github.com/yourusername/gomoku-wordpress-plugin",
+    "support": {
+        "issues": "https://github.com/yourusername/gomoku-wordpress-plugin/issues",
+        "source": "https://github.com/yourusername/gomoku-wordpress-plugin"
+    },
+    "require": {
+        "php": ">=7.4",
+        "wordpress": ">=5.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Gomoku\\": "includes/"
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

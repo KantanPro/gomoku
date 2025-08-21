@@ -1,12 +1,19 @@
 <?php
 /**
  * Plugin Name: Gomoku Game
- * Plugin URI: https://example.com/gomoku
+ * Plugin URI: https://github.com/yourusername/gomoku-wordpress-plugin
  * Description: 五目並べゲームをWordPressサイトに組み込むプラグインです。15×15のボードで遊べます。
- * Version: 1.0.0
+ * Version: 1.3.0
  * Author: Your Name
+ * Author URI: https://github.com/yourusername
  * License: GPL v2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: gomoku
+ * Requires at least: 5.0
+ * Tested up to: 6.4
+ * Requires PHP: 7.4
+ * Network: false
+ * GitHub Plugin URI: yourusername/gomoku-wordpress-plugin
  */
 
 // セキュリティ対策
@@ -17,12 +24,16 @@ if (!defined('ABSPATH')) {
 // プラグインの定数定義
 define('GOMOKU_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('GOMOKU_PLUGIN_PATH', plugin_dir_path(__FILE__));
-define('GOMOKU_VERSION', '1.0.0');
+define('GOMOKU_VERSION', '1.3.0');
+define('GOMOKU_GITHUB_USERNAME', 'yourusername');
+define('GOMOKU_GITHUB_REPOSITORY', 'gomoku-wordpress-plugin');
 
 /**
  * プラグインの初期化クラス
  */
 class Gomoku_Plugin {
+    
+    private $updater;
     
     public function __construct() {
         add_action('init', array($this, 'init'));
@@ -30,6 +41,9 @@ class Gomoku_Plugin {
         add_action('admin_menu', array($this, 'add_admin_menu'));
         register_activation_hook(__FILE__, array($this, 'activate'));
         register_deactivation_hook(__FILE__, array($this, 'deactivate'));
+        
+        // プラグインアップデートチェッカーを初期化
+        $this->init_updater();
     }
     
     /**
@@ -42,6 +56,9 @@ class Gomoku_Plugin {
         
         // ゲームロジッククラスの読み込み
         require_once GOMOKU_PLUGIN_PATH . 'includes/class-gomoku-game.php';
+        
+        // AJAX処理の登録
+        add_action('wp_ajax_gomoku_force_update_check', array($this, 'force_update_check'));
     }
     
     /**
@@ -104,6 +121,48 @@ class Gomoku_Plugin {
      */
     public function deactivate() {
         flush_rewrite_rules();
+    }
+    
+    /**
+     * プラグインアップデートチェッカーの初期化
+     */
+    private function init_updater() {
+        // 管理画面でのみアップデートチェッカーを有効化
+        if (is_admin()) {
+            require_once GOMOKU_PLUGIN_PATH . 'includes/class-plugin-updater.php';
+            
+            // GitHub Access Token（オプション）
+            $github_token = get_option('gomoku_github_token', '');
+            
+            $this->updater = new Gomoku_Plugin_Updater(
+                __FILE__,
+                GOMOKU_GITHUB_USERNAME,
+                GOMOKU_GITHUB_REPOSITORY,
+                $github_token
+            );
+        }
+    }
+    
+    /**
+     * 強制更新チェックのAJAX処理
+     */
+    public function force_update_check() {
+        // セキュリティチェック
+        if (!wp_verify_nonce($_POST['nonce'], 'gomoku_force_update')) {
+            wp_send_json_error('セキュリティチェックに失敗しました');
+        }
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('権限がありません');
+        }
+        
+        // 更新チェックを強制実行
+        if (isset($this->updater)) {
+            $this->updater->force_check();
+            wp_send_json_success('更新チェックが完了しました');
+        } else {
+            wp_send_json_error('アップデートチェッカーが初期化されていません');
+        }
     }
 }
 
