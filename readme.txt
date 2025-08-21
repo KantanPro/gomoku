@@ -4,7 +4,7 @@ Tags: game, gomoku, go-moku, board-game, entertainment
 Requires at least: 5.0
 Tested up to: 6.9.1
 Requires PHP: 7.4
-Stable tag: 1.3.1
+Stable tag: 1.3.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -77,6 +77,9 @@ Gomoku Gameは、WordPressサイトに五目並べゲームを簡単に組み込
 
 == Changelog ==
 
+= 1.3.2 =
+* キャラクター表示改善
+
 = 1.3.1 =
 * GitHubリリース対応
 
@@ -113,6 +116,9 @@ Gomoku Gameは、WordPressサイトに五目並べゲームを簡単に組み込
 * レスポンシブデザイン対応
 
 == Upgrade Notice ==
+
+= 1.3.2 =
+キャラクター表示の改善により、より見やすく、楽しいゲーム体験を提供します。
 
 = 1.3.1 =
 GitHubリリース対応版です。プラグインの更新管理が改善されました。
