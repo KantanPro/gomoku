@@ -34,7 +34,14 @@ class Gomoku_Plugin_Updater {
         $this->requires_wp_version = !empty($plugin_data['RequiresWP']) ? $plugin_data['RequiresWP'] : '5.0';
         $this->tested_wp_version = !empty($plugin_data['TestedUpTo']) ? $plugin_data['TestedUpTo'] : get_bloginfo('version');
         
-        // WordPressフックに登録
+        // WordPressフックに登録（admin_init以降に実行）
+        add_action('admin_init', array($this, 'init_hooks'));
+    }
+    
+    /**
+     * フックの初期化
+     */
+    public function init_hooks() {
         add_filter('pre_set_site_transient_update_plugins', array($this, 'check_for_plugin_update'));
         add_filter('plugins_api', array($this, 'plugin_popup'), 10, 3);
         add_filter('upgrader_post_install', array($this, 'after_install'), 10, 3);

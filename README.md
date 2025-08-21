@@ -26,7 +26,7 @@
 2. WordPress管理画面の「プラグイン」で「Gomoku Game」を有効化
 
 ### GitHubからのインストール
-1. [リリースページ](https://github.com/yourusername/gomoku-wordpress-plugin/releases)から最新版をダウンロード
+1. [リリースページ](https://github.com/kantanpro/gomoku-wordpress-plugin/releases)から最新版をダウンロード
 2. WordPress管理画面で「プラグイン」→「新規追加」→「プラグインのアップロード」
 3. ダウンロードしたZIPファイルをアップロードして有効化
 
@@ -143,6 +143,11 @@ gomoku/
 3. プラグインの競合を確認
 
 ## 更新履歴
+
+### Version 1.3.1
+- WordPress 6.7.0対応：翻訳読み込みタイミングの修正
+- プラグインアップデートチェッカーの初期化タイミングを調整
+- ヘッダー送信エラーの修正
 
 ### Version 1.3.0
 - AI対戦モードを常時ONに変更

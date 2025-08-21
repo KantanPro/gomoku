@@ -16,6 +16,7 @@ if (isset($_POST['submit']) && wp_verify_nonce($_POST['gomoku_settings_nonce'], 
     $dark_theme = sanitize_text_field($_POST['dark_theme']);
     $character_mode = sanitize_text_field($_POST['character_mode']);
     $github_token = sanitize_text_field($_POST['github_token']);
+    $auto_update = isset($_POST['auto_update']) ? 1 : 0;
     
     update_option('gomoku_board_size', $board_size);
     update_option('gomoku_enable_scores', $enable_scores);
@@ -24,6 +25,7 @@ if (isset($_POST['submit']) && wp_verify_nonce($_POST['gomoku_settings_nonce'], 
     update_option('gomoku_dark_theme', $dark_theme);
     update_option('gomoku_character_mode', $character_mode);
     update_option('gomoku_github_token', $github_token);
+    update_option('gomoku_auto_update', $auto_update);
     
     echo '<div class="notice notice-success"><p>設定が保存されました。</p></div>';
     
@@ -39,6 +41,7 @@ $ai_difficulty = get_option('gomoku_ai_difficulty', 'medium');
 $dark_theme = get_option('gomoku_dark_theme', 'auto');
 $character_mode = get_option('gomoku_character_mode', 'stones');
 $github_token = get_option('gomoku_github_token', '');
+$auto_update = get_option('gomoku_auto_update', true);
 
 // 統計情報の取得
 $scores = get_option('gomoku_scores', array());
@@ -155,6 +158,16 @@ foreach ($scores as $score) {
                             <p class="description">GitHubの更新チェック用アクセストークン（オプション）。プライベートリポジトリの場合に必要です。</p>
                         </td>
                     </tr>
+                    <tr>
+                        <th scope="row">自動更新</th>
+                        <td>
+                            <label>
+                                <input type="checkbox" name="auto_update" id="auto_update" value="1" <?php checked(get_option('gomoku_auto_update', true), true); ?> />
+                                プラグインの自動更新を有効にする
+                            </label>
+                            <p class="description">チェックを外すと、手動更新のみになります</p>
+                        </td>
+                    </tr>
                 </table>
                 
                 <p class="submit">
@@ -163,7 +176,33 @@ foreach ($scores as $score) {
             </form>
         </div>
         
-        <!-- 統計情報 -->
+        <!-- 自動更新状態 -->
+        <div class="gomoku-admin-section">
+            <h2>自動更新状態</h2>
+            <div class="gomoku-auto-update-status">
+                <?php if ($auto_update): ?>
+                    <div class="status-enabled">
+                        <span class="dashicons dashicons-yes-alt"></span>
+                        <strong>自動更新が有効になっています</strong>
+                        <p>GitHubリリースの更新通知が表示され、プラグインリストで「自動更新を有効化」が表示されます</p>
+                    </div>
+                <?php else: ?>
+                    <div class="status-disabled">
+                        <span class="dashicons dashicons-no-alt"></span>
+                        <strong>自動更新が無効になっています</strong>
+                        <p>手動更新のみになり、プラグインリストで「自動更新無効」が表示されます</p>
+                    </div>
+                <?php endif; ?>
+            </div>
+                    <p class="description">
+            <strong>注意:</strong> この設定を変更した後、プラグインリストの表示を更新するには、ページを再読み込みしてください。
+        </p>
+        <p class="description">
+            <strong>ヒント:</strong> プラグインリストの「自動更新」列でも直接切り替えができます。
+        </p>
+    </div>
+    
+    <!-- 統計情報 -->
         <div class="gomoku-admin-section">
             <h2>統計情報</h2>
             <div class="gomoku-stats">
@@ -218,31 +257,6 @@ foreach ($scores as $score) {
                     <li><code>[gomoku character_mode="emoji"]</code> - 絵文字キャラクター</li>
                     <li><code>[gomoku character_mode="demon"]</code> - 悪魔vsおばけ</li>
                 </ul>
-            </div>
-        </div>
-        
-        <!-- プラグイン情報 -->
-        <div class="gomoku-admin-section">
-            <h2>プラグイン情報</h2>
-            <div class="plugin-info">
-                <div class="info-item">
-                    <span class="info-label">現在のバージョン</span>
-                    <span class="info-value"><?php echo GOMOKU_VERSION; ?></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">GitHubリポジトリ</span>
-                    <span class="info-value">
-                        <a href="https://github.com/<?php echo GOMOKU_GITHUB_USERNAME; ?>/<?php echo GOMOKU_GITHUB_REPOSITORY; ?>" target="_blank">
-                            <?php echo GOMOKU_GITHUB_USERNAME; ?>/<?php echo GOMOKU_GITHUB_REPOSITORY; ?>
-                        </a>
-                    </span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">更新チェック</span>
-                    <span class="info-value">
-                        <button type="button" id="check-updates" class="button">今すぐ更新をチェック</button>
-                    </span>
-                </div>
             </div>
         </div>
         
@@ -354,92 +368,82 @@ foreach ($scores as $score) {
     background: #f8f9fa;
 }
 
-.plugin-info {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
+.gomoku-auto-update-status {
     margin-top: 20px;
 }
 
-.info-item {
-    background: #f8f9fa;
+.gomoku-auto-update-status .status-enabled,
+.gomoku-auto-update-status .status-disabled {
+    display: flex;
+    align-items: center;
     padding: 20px;
     border-radius: 8px;
-    text-align: center;
-    border-left: 4px solid #28a745;
+    margin-bottom: 15px;
 }
 
-.info-label {
-    display: block;
-    font-size: 14px;
-    color: #666;
-    margin-bottom: 8px;
+.gomoku-auto-update-status .status-enabled {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
 }
 
-.info-value {
-    display: block;
+.gomoku-auto-update-status .status-disabled {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
+.gomoku-auto-update-status .dashicons {
+    font-size: 24px;
+    margin-right: 15px;
+}
+
+.gomoku-auto-update-status .status-enabled .dashicons {
+    color: #28a745;
+}
+
+.gomoku-auto-update-status .status-disabled .dashicons {
+    color: #dc3545;
+}
+
+.gomoku-auto-update-status strong {
     font-size: 16px;
-    font-weight: bold;
-    color: #28a745;
+    margin-bottom: 5px;
 }
 
-.info-value a {
-    color: #28a745;
-    text-decoration: none;
+.gomoku-auto-update-status p {
+    margin: 0;
+    font-size: 14px;
+    opacity: 0.8;
 }
 
-.info-value a:hover {
-    text-decoration: underline;
-}
 
-#check-updates {
-    background: #28a745;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-#check-updates:hover {
-    background: #218838;
-}
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const checkUpdatesBtn = document.getElementById('check-updates');
-    if (checkUpdatesBtn) {
-        checkUpdatesBtn.addEventListener('click', function() {
-            this.disabled = true;
-            this.textContent = '更新チェック中...';
-            
-            // WordPressの更新チェックを強制実行
-            fetch(ajaxurl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: 'action=gomoku_force_update_check&nonce=' + '<?php echo wp_create_nonce("gomoku_force_update"); ?>'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('更新チェックが完了しました。ページをリロードしてください。');
-                    location.reload();
-                } else {
-                    alert('更新チェックでエラーが発生しました。');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('更新チェックでエラーが発生しました。');
-            })
-            .finally(() => {
-                this.disabled = false;
-                this.textContent = '今すぐ更新をチェック';
-            });
-        });
-    }
+jQuery(document).ready(function($) {
+    // 自動更新設定の変更を監視
+    $('#auto_update').on('change', function() {
+        var isEnabled = $(this).is(':checked');
+        var statusDiv = $('.gomoku-auto-update-status');
+        
+        if (isEnabled) {
+            statusDiv.html(`
+                <div class="status-enabled">
+                    <span class="dashicons dashicons-yes-alt"></span>
+                    <strong>自動更新が有効になっています</strong>
+                    <p>GitHubリリースの更新通知が表示され、プラグインリストで「自動更新を有効化」が表示されます</p>
+                </div>
+            `);
+        } else {
+            statusDiv.html(`
+                <div class="status-disabled">
+                    <span class="dashicons dashicons-no-alt"></span>
+                    <strong>自動更新が無効になっています</strong>
+                    <p>手動更新のみになり、プラグインリストで「自動更新無効」が表示されます</p>
+                </div>
+            `);
+        }
+    });
 });
 </script>

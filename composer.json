@@ -1,13 +1,13 @@
 {
-    "name": "yourusername/gomoku-wordpress-plugin",
+    "name": "kantanpro/gomoku-wordpress-plugin",
     "description": "五目並べゲームをWordPressサイトに組み込むプラグイン",
     "type": "wordpress-plugin",
-    "version": "1.3.0",
+    "version": "1.3.1",
     "license": "GPL-2.0-or-later",
     "authors": [
         {
-            "name": "Your Name",
-            "homepage": "https://github.com/yourusername"
+            "name": "KantanPro",
+            "homepage": "https://www.kantanpro.com/kantanpro-page"
         }
     ],
     "keywords": [
@@ -17,14 +17,17 @@
         "gomoku",
         "五目並べ"
     ],
-    "homepage": "https://github.com/yourusername/gomoku-wordpress-plugin",
+    "homepage": "https://github.com/kantanpro/gomoku-wordpress-plugin",
     "support": {
-        "issues": "https://github.com/yourusername/gomoku-wordpress-plugin/issues",
-        "source": "https://github.com/yourusername/gomoku-wordpress-plugin"
+        "issues": "https://github.com/kantanpro/gomoku-wordpress-plugin/issues",
+        "source": "https://github.com/kantanpro/gomoku-wordpress-plugin"
     },
     "require": {
         "php": ">=7.4",
         "wordpress": ">=5.0"
+    },
+    "extra": {
+        "tested_up_to": "6.9.1"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.0"
